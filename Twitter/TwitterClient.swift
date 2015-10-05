@@ -93,7 +93,7 @@ class TwitterClient: BDBOAuth1RequestOperationManager {
     
     func deleteTweet(tweetId: Int, completion: (tweet: Tweet?, error: NSError?) -> ()) {
         
-        POST("1.1/statuses/destroy/\(tweetId).json", parameters: NSDictionary(), success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+        POST("1.1/statuses/destroy/\(tweetId).json", parameters: ["":""], success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
             let tweet = Tweet(dictionary: response as! NSDictionary)
             completion(tweet: tweet, error: nil)
             }) { (operation: AFHTTPRequestOperation!, error:NSError!) -> Void in

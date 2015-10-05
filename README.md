@@ -28,5 +28,5 @@ Time spent: `12hr`
 
 ### Walkthrough
 
-![Video Walkthrough](...)
+![Video Walkthrough](http://g.recordit.co/3GMFEHbDUh.gif)
 
