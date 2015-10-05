@@ -10,17 +10,35 @@ import UIKit
 
 class ComposeViewController: UIViewController {
     @IBOutlet weak var tweetTextField: UITextField!
+    
+    var tweet: Tweet?
 
-    @IBAction func onTweet(sender: AnyObject) {
-        TwitterClient.sharedInstance.tweet(tweetTextField.text!) { (tweet, error) -> () in
+    @IBAction func onCancel(sender: AnyObject) {
+        self.dismissViewControllerAnimated(true, completion: { () -> Void in
             
+        })
+    }
+    @IBAction func onTweet(sender: AnyObject) {
+        if tweet == nil {
+            TwitterClient.sharedInstance.tweet(tweetTextField.text!) { (tweet, error) -> () in
+                
+            }
+        } else {
+            TwitterClient.sharedInstance.reply(tweetTextField.text!, tweetId: (tweet?.id)!, completion: { (tweet, error) -> () in
+                
+            })
         }
+
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        
+        if tweet != nil{
+            tweetTextField.text = "@\((tweet?.user?.screenname)!): "
+        }
     }
 
     override func didReceiveMemoryWarning() {

@@ -66,12 +66,34 @@ class TwitterClient: BDBOAuth1RequestOperationManager {
         }
     }
     
+    func reply(text: String, tweetId: Int, completion: (tweet: Tweet?, error: NSError?) -> ()) {
+        
+        let params = ["status":text, "in_reply_to_status_id": "\(tweetId)"]
+        
+        POST("1.1/statuses/update.json", parameters: params, success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+            let tweet = Tweet(dictionary: response as! NSDictionary)
+            completion(tweet: tweet, error: nil)
+            }) { (operation: AFHTTPRequestOperation!, error:NSError!) -> Void in
+                completion(tweet: nil, error: error)
+        }
+    }
+    
     func retweet(text: String, tweetId: Int, completion: (tweet: Tweet?, error: NSError?) -> ()) {
         
-        let params = NSDictionary()
-        params.setValue(text, forKey: "status")
+        let params = ["status":text]
 
+        
         POST("1.1/statuses/retweet/\(tweetId).json", parameters: params, success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+            let tweet = Tweet(dictionary: response as! NSDictionary)
+            completion(tweet: tweet, error: nil)
+            }) { (operation: AFHTTPRequestOperation!, error:NSError!) -> Void in
+                completion(tweet: nil, error: error)
+        }
+    }
+    
+    func deleteTweet(tweetId: Int, completion: (tweet: Tweet?, error: NSError?) -> ()) {
+        
+        POST("1.1/statuses/destroy/\(tweetId).json", parameters: NSDictionary(), success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
             let tweet = Tweet(dictionary: response as! NSDictionary)
             completion(tweet: tweet, error: nil)
             }) { (operation: AFHTTPRequestOperation!, error:NSError!) -> Void in
@@ -81,10 +103,21 @@ class TwitterClient: BDBOAuth1RequestOperationManager {
     
     func favorite(tweetId: Int, completion: (tweet: Tweet?, error: NSError?) -> ()) {
         
-        let params = NSDictionary()
-        params.setValue("\(tweetId)", forKey: "id")
+        let params = ["id":"\(tweetId)"]
 
         POST("1.1/favorites/create.json", parameters: params, success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+            let tweet = Tweet(dictionary: response as! NSDictionary)
+            completion(tweet: tweet, error: nil)
+            }) { (operation: AFHTTPRequestOperation!, error:NSError!) -> Void in
+                completion(tweet: nil, error: error)
+        }
+    }
+    
+    func unfavorite(tweetId: Int, completion: (tweet: Tweet?, error: NSError?) -> ()) {
+        
+        let params = ["id":"\(tweetId)"]
+        
+        POST("1.1/favorites/destroy.json", parameters: params, success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
             let tweet = Tweet(dictionary: response as! NSDictionary)
             completion(tweet: tweet, error: nil)
             }) { (operation: AFHTTPRequestOperation!, error:NSError!) -> Void in

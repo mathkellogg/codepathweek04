@@ -10,6 +10,9 @@ import UIKit
 
 class TweetDetailViewController: UIViewController {
     
+    // function to redraw original cell if changes occur
+    var redrawOriginalCell: (() -> Void)?
+    
     var tweet: Tweet?
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
@@ -24,14 +27,40 @@ class TweetDetailViewController: UIViewController {
     @IBOutlet weak var favoriteButton: UIButton!
     
     @IBAction func onReplyTap(sender: AnyObject) {
+        
     }
     @IBAction func onRetweetTap(sender: AnyObject) {
         isRetweeted = !isRetweeted
-
+        
+        if isRetweeted{
+            retweetCount = (retweetCount + 1)
+            TwitterClient.sharedInstance.retweet((tweet?.text)!, tweetId: (tweet?.id)!) { (tweet, error) -> () in
+                
+            }
+        } else {
+            retweetCount = (retweetCount - 1)
+            tweet?.retweeted = false
+        }
+        tweet?.retweetCount = retweetCount
+        tweet?.retweeted = isRetweeted
+        self.redrawOriginalCell!()
     }
     @IBAction func onFavoriteTap(sender: AnyObject) {
         isFavorite = !isFavorite
-
+        if isFavorite{
+            favoriteCount = (favoriteCount + 1)
+            TwitterClient.sharedInstance.favorite((tweet?.id)!, completion: { (tweet, error) -> () in
+                
+            })
+        } else {
+            favoriteCount = (favoriteCount - 1)
+            TwitterClient.sharedInstance.unfavorite((tweet?.id)!, completion: { (tweet, error) -> () in
+                
+            })
+        }
+        tweet?.favoriteCount = favoriteCount
+        tweet?.favorited = isFavorite
+        self.redrawOriginalCell!()
     }
     
     var isFavorite: Bool = false {
@@ -65,10 +94,10 @@ class TweetDetailViewController: UIViewController {
         profileImage.clipsToBounds = true
         nameLabel.text = tweet?.user?.name
         handleLabel.text = tweet?.user?.screenname
-        //isFavorite = tweet!.favorited
-        //isRetweeted = tweet!.retweeted
-        //retweetCount = tweet!.retweetCount
-        //favoriteCount = tweet!.favoriteCount
+        isFavorite = tweet!.favorited
+        isRetweeted = tweet!.retweeted
+        retweetCount = tweet!.retweetCount
+        favoriteCount = tweet!.favoriteCount
         tweetTextLabel.text = tweet!.text
         timeLabel.text = tweet!.createdAtShortString
     }

@@ -61,11 +61,20 @@
                                     <action selector="onTweet:" destination="8he-hB-OjH" eventType="touchUpInside" id="sSS-ec-WuW"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rFi-Jc-uQC">
+                                <rect key="frame" x="7" y="436" width="48" height="30"/>
+                                <state key="normal" title="Cancel"/>
+                                <connections>
+                                    <action selector="onCancel:" destination="8he-hB-OjH" eventType="touchUpInside" id="yNT-kJ-7w1"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="yAJ-vf-ODf" secondAttribute="trailing" constant="8" id="6gR-kX-h1o"/>
                             <constraint firstAttribute="trailing" secondItem="pKG-FY-F31" secondAttribute="trailing" constant="8" id="Boz-S2-HL6"/>
+                            <constraint firstItem="rFi-Jc-uQC" firstAttribute="top" secondItem="yAJ-vf-ODf" secondAttribute="bottom" constant="8" id="IWF-HG-5oz"/>
+                            <constraint firstItem="rFi-Jc-uQC" firstAttribute="leading" secondItem="s2z-Ke-0SF" secondAttribute="leading" constant="8" id="L21-2B-Olz"/>
                             <constraint firstItem="yAJ-vf-ODf" firstAttribute="leading" secondItem="s2z-Ke-0SF" secondAttribute="leading" constant="8" id="S2P-lr-tEB"/>
                             <constraint firstItem="yCp-sH-mdB" firstAttribute="top" relation="greaterThanOrEqual" secondItem="yAJ-vf-ODf" secondAttribute="bottom" constant="8" id="ebL-Xx-jzj"/>
                             <constraint firstItem="pKG-FY-F31" firstAttribute="top" secondItem="yAJ-vf-ODf" secondAttribute="bottom" constant="8" id="ks2-kb-P2z"/>
@@ -167,7 +176,8 @@
                                                     <state key="selected" image="reply_hover"/>
                                                     <state key="highlighted" image="reply_hover"/>
                                                     <connections>
-                                                        <action selector="onReplyTap:" destination="PZe-gS-Y4h" eventType="touchUpInside" id="WuA-BS-l7K"/>
+                                                        <action selector="onReplyTap:" destination="PZe-gS-Y4h" eventType="touchUpInside" id="tuW-Wf-bm9"/>
+                                                        <segue destination="8he-hB-OjH" kind="presentation" identifier="replySegue" id="4IY-IK-tA8"/>
                                                     </connections>
                                                 </button>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="24" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xri-xe-N8g">
@@ -270,7 +280,7 @@
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" title="Compose" id="gIf-fY-7fy">
                             <connections>
-                                <segue destination="8he-hB-OjH" kind="presentation" id="JZ1-xC-SJL"/>
+                                <segue destination="8he-hB-OjH" kind="presentation" identifier="composeSegue" id="JZ1-xC-SJL"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -464,4 +474,7 @@
         <image name="retweet_active" width="32" height="24"/>
         <image name="retweet_on" width="19" height="16"/>
     </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="4IY-IK-tA8"/>
+    </inferredMetricsTieBreakers>
 </document>

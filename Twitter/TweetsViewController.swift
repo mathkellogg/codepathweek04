@@ -55,9 +55,12 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         let cell = tableView.dequeueReusableCellWithIdentifier("TweetTableViewCell", forIndexPath: indexPath) as! TweetTableViewCell
         
         cell.tweet = tweets[indexPath.row]
+        cell.parent = self
+        cell.indexPath = indexPath
         
         return cell
     }
+    
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tweets.count
@@ -77,8 +80,14 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let indexPath = tweetTableView.indexPathForCell(sender as! TweetTableViewCell)
 
             vc.tweet = tweets[indexPath!.row]
+            vc.redrawOriginalCell = {
+                self.tweetTableView.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.None)
+            }
+        } else if segue.identifier == "replySegue" {
+            let vc = segue.destinationViewController as! ComposeViewController
+            let button = sender as! UIButton
+            vc.tweet = tweets[button.tag as Int]
 
-            
         }
     }
 

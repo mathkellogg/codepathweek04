@@ -19,6 +19,7 @@ class Tweet: NSObject {
     var retweetCount = 0
     var retweeted = false
     var profileImageURL: NSURL?
+    var id: Int?
 
     init(dictionary: NSDictionary){
         print("\(dictionary)")
@@ -30,6 +31,7 @@ class Tweet: NSObject {
         retweetCount = dictionary["retweet_count"] as! Int
         retweeted = dictionary["retweeted"] as! Int != 0
         profileImageURL = user?.profileImageUrl
+        id = dictionary["id"] as? Int
         
         let formatter = NSDateFormatter()
         formatter.dateFormat = "EEE MMMd HH:mm:ss Z y"

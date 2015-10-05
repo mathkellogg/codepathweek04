@@ -10,6 +10,8 @@ import UIKit
 
 class TweetTableViewCell: UITableViewCell {
 
+    var indexPath: NSIndexPath?
+    weak var parent: UIViewController?
     @IBOutlet weak var thumbImageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var handleLabel: UILabel!
@@ -22,15 +24,40 @@ class TweetTableViewCell: UITableViewCell {
     @IBOutlet weak var retweetButton: UIButton!
     @IBOutlet weak var favoriteButton: UIButton!
     
+    @IBAction func onReplyTap(sender: AnyObject) {
+
+        //parent!.performSegueWithIdentifier("composeSegue", sender: self)
+    }
     @IBAction func onRetweetTap(sender: AnyObject) {
         isRetweeted = !isRetweeted
+        
+        if isRetweeted{
+            retweetCount = (retweetCount + 1)
+            TwitterClient.sharedInstance.retweet((tweet?.text)!, tweetId: (tweet?.id)!) { (tweet, error) -> () in
+                
+            }
+        } else {
+            retweetCount = (retweetCount - 1)
+            tweet?.retweeted = false
+        }
+        tweet?.retweetCount = retweetCount
+        tweet?.retweeted = isRetweeted
     }
-    
     @IBAction func onFavoriteTap(sender: AnyObject) {
         isFavorite = !isFavorite
-    }
-    
-    @IBAction func onReplyTap(sender: AnyObject) {
+        if isFavorite{
+            favoriteCount = (favoriteCount + 1)
+            TwitterClient.sharedInstance.favorite((tweet?.id)!, completion: { (tweet, error) -> () in
+                
+            })
+        } else {
+            favoriteCount = (favoriteCount - 1)
+            TwitterClient.sharedInstance.unfavorite((tweet?.id)!, completion: { (tweet, error) -> () in
+                
+            })
+        }
+        tweet?.favoriteCount = favoriteCount
+        tweet?.favorited = isFavorite
     }
     
     var tweet: Tweet? {
@@ -66,7 +93,6 @@ class TweetTableViewCell: UITableViewCell {
     }
     
     func buildTweet(){
-        print("\(self.tweet)")
         thumbImageView.setImageWithURL(tweet!.profileImageURL)
         thumbImageView.layer.cornerRadius = 5
         thumbImageView.clipsToBounds = true
@@ -78,6 +104,9 @@ class TweetTableViewCell: UITableViewCell {
         favoriteCount = tweet!.favoriteCount
         tweetTextLabel.text = tweet!.text
         timeLabel.text = tweet!.createdAtShortString
+        if indexPath != nil {
+            replyButton.tag = indexPath!.row
+        }
     }
 
     override func setSelected(selected: Bool, animated: Bool) {
