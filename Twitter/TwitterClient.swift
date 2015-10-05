@@ -40,12 +40,8 @@ class TwitterClient: BDBOAuth1RequestOperationManager {
     func loginWithCompletion (completion: (user: User?, error: NSError?) -> ()) {
         loginCompletion = completion
         
-        print("1")
-        
-        
         // fetch request token and redirect to authorization page
         TwitterClient.sharedInstance.requestSerializer.removeAccessToken()
-        print("2")
         TwitterClient.sharedInstance.fetchRequestTokenWithPath("oauth/request_token", method: "GET", callbackURL: NSURL(string:"cptwitterdemo://oauth"), scope: nil, success: {
             (requestToken: BDBOAuth1Credential!) -> Void in
             print(requestToken)
@@ -55,6 +51,45 @@ class TwitterClient: BDBOAuth1RequestOperationManager {
                 (error: NSError!) -> Void in
                 self.loginCompletion?(user: nil, error: error)
         })
+    }
+    
+    
+    func tweet(text: String, completion: (tweet: Tweet?, error: NSError?) -> ()) {
+        
+        let params = ["status":text]
+
+        POST("1.1/statuses/update.json", parameters: params, success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+            let tweet = Tweet(dictionary: response as! NSDictionary)
+            completion(tweet: tweet, error: nil)
+            }) { (operation: AFHTTPRequestOperation!, error:NSError!) -> Void in
+                completion(tweet: nil, error: error)
+        }
+    }
+    
+    func retweet(text: String, tweetId: Int, completion: (tweet: Tweet?, error: NSError?) -> ()) {
+        
+        let params = NSDictionary()
+        params.setValue(text, forKey: "status")
+
+        POST("1.1/statuses/retweet/\(tweetId).json", parameters: params, success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+            let tweet = Tweet(dictionary: response as! NSDictionary)
+            completion(tweet: tweet, error: nil)
+            }) { (operation: AFHTTPRequestOperation!, error:NSError!) -> Void in
+                completion(tweet: nil, error: error)
+        }
+    }
+    
+    func favorite(tweetId: Int, completion: (tweet: Tweet?, error: NSError?) -> ()) {
+        
+        let params = NSDictionary()
+        params.setValue("\(tweetId)", forKey: "id")
+
+        POST("1.1/favorites/create.json", parameters: params, success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+            let tweet = Tweet(dictionary: response as! NSDictionary)
+            completion(tweet: tweet, error: nil)
+            }) { (operation: AFHTTPRequestOperation!, error:NSError!) -> Void in
+                completion(tweet: nil, error: error)
+        }
     }
 
     func openURL(url: NSURL){
