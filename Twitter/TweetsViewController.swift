@@ -10,10 +10,56 @@ import UIKit
 
 class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
+    @IBOutlet weak var tweetsViewTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var tweetsViewLeadingConstraint: NSLayoutConstraint!
     var tweets = [Tweet]()
     var refreshControl: UIRefreshControl!
+    var panOriginalCenter: CGPoint?
+    var tweetsViewOriginalLeadingConstraint: CGFloat?
+    var tweetsViewOriginalTrailingConstraint: CGFloat?
+    var tweetsViewOpenLeadingConstraint: CGFloat?
+    var tweetsViewOpenTrailingConstraint: CGFloat?
+    var slideStartPoint: CGFloat?
+
     
+    @IBOutlet weak var tweetsView: SlidableView!
     @IBOutlet weak var tweetTableView: UITableView!
+    
+    @IBAction func onDidPan(sender: UIPanGestureRecognizer) {
+        let point = sender.locationInView(sender.view?.superview)
+        
+        if sender.state == UIGestureRecognizerState.Began {
+            panOriginalCenter = point
+            slideStartPoint = tweetsViewLeadingConstraint.constant
+        } else if sender.state == UIGestureRecognizerState.Changed {
+            let changeX = point.x - panOriginalCenter!.x
+            tweetsViewTrailingConstraint.constant = (slideStartPoint! + changeX) * -1
+            tweetsViewLeadingConstraint.constant = slideStartPoint! + changeX
+
+            print("\(changeX), \(slideStartPoint)")
+        } else if sender.state == UIGestureRecognizerState.Ended {
+            let velocity = sender.velocityInView(sender.view?.superview)
+
+            if velocity.x > 0 {
+                UIView.animateWithDuration(2.0, delay: 0.0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.3, options: UIViewAnimationOptions(), animations: { () -> Void in
+                    self.view.layoutIfNeeded()
+
+                    self.tweetsViewTrailingConstraint.constant = self.tweetsViewOpenTrailingConstraint!
+                    self.tweetsViewLeadingConstraint.constant = self.tweetsViewOpenLeadingConstraint!
+                    }, completion: { (completed) -> Void in })
+
+            } else {
+                UIView.animateWithDuration(2.0, delay: 0.0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.3, options: UIViewAnimationOptions(), animations: { () -> Void in
+                    self.view.layoutIfNeeded()
+                    self.tweetsViewTrailingConstraint.constant = self.tweetsViewOriginalTrailingConstraint!
+                    self.tweetsViewLeadingConstraint.constant = self.tweetsViewOriginalLeadingConstraint!
+                    }, completion: { (completed) -> Void in })
+
+
+            }
+            
+        }
+    }
     
     @IBAction func onLogout(sender: AnyObject) {
         User.currentUser?.logout()
@@ -27,6 +73,13 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tweetTableView.estimatedRowHeight = 120
         
         fetchTweets()
+        panOriginalCenter = tweetsView.center
+        let screenWidth = tweetsView.bounds.width
+        let openPositionX = screenWidth/2
+        tweetsViewOriginalLeadingConstraint = tweetsViewLeadingConstraint.constant
+        tweetsViewOriginalTrailingConstraint = tweetsViewTrailingConstraint.constant
+        tweetsViewOpenLeadingConstraint = tweetsViewLeadingConstraint.constant + openPositionX
+        tweetsViewOpenTrailingConstraint = tweetsViewTrailingConstraint.constant - openPositionX
         
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: "fetchTweets", forControlEvents: UIControlEvents.ValueChanged)
