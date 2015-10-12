@@ -8,6 +8,70 @@
 
 import UIKit
 
+
+class SettingsTable: NSObject, UITableViewDelegate, UITableViewDataSource {
+    
+    var performSegue: ((identifier: String, user: User) -> Void)?
+    var vc: TweetsViewController?
+    
+    func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        print("selected: \(indexPath.row)")
+        switch indexPath.row {
+        case 0:
+            break
+        case 1:
+            self.performSegue!(identifier: "profileSegue",user: User.currentUser!)
+        case 2:
+            self.vc!.closeTray()
+        case 3:
+            break
+            //self.performSegue!(identifier: "mentionsSegue")
+        default:
+             break
+        }
+
+ 
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        print(indexPath.row)
+        if indexPath.row == 0 {
+            let cell = tableView.dequeueReusableCellWithIdentifier("ProfileCell", forIndexPath: indexPath) as! ProfileCell
+            cell.profileImageView.image = UIImage(named: "favorite")
+            cell.nameLabel.text = "Chim Ritchells"
+            cell.descriptionLabel.text = "Brothers with Doctor Kenneth Noisewater. Great at bringing the Thunder."
+            cell.sizeToFit()
+            return cell
+            
+        } else {
+            let cell = tableView.dequeueReusableCellWithIdentifier("SettingsCell", forIndexPath: indexPath) as! SettingsCell
+            switch indexPath.row {
+            case 1:
+                cell.iconView.image = UIImage(named: "favorite" )
+                cell.descriptionLabel.text = "My Profile"
+                
+            case 2:
+                cell.iconView.image = UIImage(named: "favorite")
+                cell.descriptionLabel.text = "Home Timeline"
+                
+            default:
+                cell.iconView.image = UIImage(named: "favorite")
+                cell.descriptionLabel.text = "Mentions"
+                
+            }
+            cell.sizeToFit()
+            return cell
+        }
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 4
+    }
+    
+}
+
 class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var tweetsViewTrailingConstraint: NSLayoutConstraint!
@@ -20,10 +84,25 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var tweetsViewOpenLeadingConstraint: CGFloat?
     var tweetsViewOpenTrailingConstraint: CGFloat?
     var slideStartPoint: CGFloat?
-
+    var settingsTableDelegate: SettingsTable?
     
+    var segueUser: User?
+    
+    @IBOutlet weak var settingsTable: UITableView!
     @IBOutlet weak var tweetsView: SlidableView!
     @IBOutlet weak var tweetTableView: UITableView!
+    
+    
+    
+    func closeTray() {
+        UIView.animateWithDuration(2.0, delay: 0.0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.3, options: UIViewAnimationOptions(), animations: { () -> Void in
+        self.view.layoutIfNeeded()
+    
+        self.tweetsViewTrailingConstraint.constant = self.tweetsViewOpenTrailingConstraint!
+        self.tweetsViewLeadingConstraint.constant = self.tweetsViewOpenLeadingConstraint!
+        }, completion: { (completed) -> Void in })
+    }
+
     
     @IBAction func onDidPan(sender: UIPanGestureRecognizer) {
         let point = sender.locationInView(sender.view?.superview)
@@ -35,8 +114,6 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let changeX = point.x - panOriginalCenter!.x
             tweetsViewTrailingConstraint.constant = (slideStartPoint! + changeX) * -1
             tweetsViewLeadingConstraint.constant = slideStartPoint! + changeX
-
-            print("\(changeX), \(slideStartPoint)")
         } else if sender.state == UIGestureRecognizerState.Ended {
             let velocity = sender.velocityInView(sender.view?.superview)
 
@@ -54,16 +131,20 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     self.tweetsViewTrailingConstraint.constant = self.tweetsViewOriginalTrailingConstraint!
                     self.tweetsViewLeadingConstraint.constant = self.tweetsViewOriginalLeadingConstraint!
                     }, completion: { (completed) -> Void in })
-
-
             }
             
         }
     }
     
+    func performSegue(identifier:String, user: User) {
+        self.segueUser = user
+        performSegueWithIdentifier(identifier, sender: self)
+    }
+    
     @IBAction func onLogout(sender: AnyObject) {
         User.currentUser?.logout()
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -71,6 +152,15 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tweetTableView.dataSource = self
         tweetTableView.rowHeight = UITableViewAutomaticDimension
         tweetTableView.estimatedRowHeight = 120
+        
+        settingsTableDelegate = SettingsTable()
+        settingsTableDelegate!.vc = self
+        settingsTable.delegate = settingsTableDelegate
+        settingsTable.dataSource = settingsTableDelegate
+        settingsTableDelegate!.performSegue = performSegue
+        //settingsTable.reloadData()
+        settingsTable.rowHeight = UITableViewAutomaticDimension
+        settingsTable.estimatedRowHeight = 120
         
         fetchTweets()
         panOriginalCenter = tweetsView.center
@@ -110,7 +200,9 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         cell.tweet = tweets[indexPath.row]
         cell.parent = self
         cell.indexPath = indexPath
-        
+        cell.tapFunction = {
+            self.performSegue("profileSegue", user:(cell.tweet?.user!)!)
+        }
         return cell
     }
     
@@ -141,7 +233,20 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let button = sender as! UIButton
             vc.tweet = tweets[button.tag as Int]
 
+        } else if segue.identifier == "profileSegue" {
+            let vc = segue.destinationViewController as! ProfileViewController
+            var aUser: User
+            if segueUser != nil{
+                 aUser = segueUser!
+            } else {
+                aUser = User.currentUser!
+            }
+            vc.user = aUser
+            
+
+
         }
     }
+ 
 
 }

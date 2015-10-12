@@ -23,6 +23,7 @@ class TweetTableViewCell: UITableViewCell {
     @IBOutlet weak var replyButton: UIButton!
     @IBOutlet weak var retweetButton: UIButton!
     @IBOutlet weak var favoriteButton: UIButton!
+    var tapFunction: (()->Void)?
     
     @IBAction func onReplyTap(sender: AnyObject) {
 
@@ -107,6 +108,11 @@ class TweetTableViewCell: UITableViewCell {
         if indexPath != nil {
             replyButton.tag = indexPath!.row
         }
+        
+        let singleTap = UITapGestureRecognizer(target: self, action: Selector("tapDetected"))
+        singleTap.numberOfTapsRequired = 1
+        thumbImageView.userInteractionEnabled = true
+        thumbImageView.addGestureRecognizer(singleTap)
     }
 
     override func setSelected(selected: Bool, animated: Bool) {
