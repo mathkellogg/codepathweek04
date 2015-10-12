@@ -29,6 +29,9 @@ class TweetTableViewCell: UITableViewCell {
 
         //parent!.performSegueWithIdentifier("composeSegue", sender: self)
     }
+    func tapProfilePic(sender: AnyObject) {
+        self.tapFunction!()
+    }
     @IBAction func onRetweetTap(sender: AnyObject) {
         isRetweeted = !isRetweeted
         
@@ -109,7 +112,7 @@ class TweetTableViewCell: UITableViewCell {
             replyButton.tag = indexPath!.row
         }
         
-        let singleTap = UITapGestureRecognizer(target: self, action: Selector("tapDetected"))
+        let singleTap = UITapGestureRecognizer(target: self, action: "tapProfilePic:")
         singleTap.numberOfTapsRequired = 1
         thumbImageView.userInteractionEnabled = true
         thumbImageView.addGestureRecognizer(singleTap)
